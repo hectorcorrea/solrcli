@@ -39,43 +39,43 @@ func main() {
 	showMenu()
 
 	for true {
-		char := readKey()
+		option := readKey()
 
-		if char == "Q" || byte(char[0]) == ctrlC {
+		if option == "Q" || byte(option[0]) == ctrlC {
 			fmt.Printf("Quit\r\n")
 			break
 		}
 
-		if char == "" {
+		if option == "" {
 			continue
 		}
 
-		if char == "h" {
+		if option == "h" {
 			showHelp()
 			continue
 		}
 
-		if char == "q" {
+		if option == "q" {
 			q = readLine("Enter q value", q)
-		} else if char == "f" {
+		} else if option == "f" {
 			facetField = readLine("Enter facet.field", facetField)
-		} else if char == "l" {
+		} else if option == "l" {
 			fl = readLine("Enter fl value", fl)
-		} else if char == "s" {
+		} else if option == "s" {
 			start = readLine("Enter start value", start)
-		} else if char == "o" {
+		} else if option == "o" {
 			rows = readLine("Enter rows value", rows)
-		} else if char == "d" {
+		} else if option == "d" {
 			debug = readLine("Enter debug value", debug)
-		} else if char == "c" {
+		} else if option == "c" {
 			lukeURL := fmt.Sprintf("%s/admin/luke", solrCoreURL)
-			x, err := getSchema(lukeURL)
+			schema, err := getSchema(lukeURL)
 			if err != nil {
 				fmt.Printf("ERROR: %s", err)
 			} else {
-				fmt.Printf("%s", x)
+				fmt.Printf("%s", schema)
 			}
-		} else if char == "x" {
+		} else if option == "x" {
 			s := solr.New(solrCoreURL, true)
 
 			options := map[string]string{
@@ -159,9 +159,6 @@ func readLine(prompt string, value string) string {
 		// fmt.Printf("\033[3D")
 	}
 
-	// writer := bufio.NewWriter(os.Stdin)
-	// writer.Write([]byte("hello"))
-	// writer.Flush()
 	reader := bufio.NewReader(os.Stdin)
 	text, _ := reader.ReadString('\n')
 	if text == "\n" {
