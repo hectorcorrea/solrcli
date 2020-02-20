@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/hectorcorrea/solr"
@@ -13,7 +14,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-const CtrlC byte = 3
+const ctrlC byte = 3
 
 var q string
 var facetField string
@@ -30,27 +31,39 @@ func main() {
 		return
 	}
 
-	solrCoreUrl := os.Args[1]
-	fmt.Printf("%s\r\n", solrCoreUrl)
-	showHelp()
+	solrCoreURL := os.Args[1]
+	fmt.Printf("%s\r\n", solrCoreURL)
+	showMenu()
 
 	for true {
 		char := readKey()
-		if char == "Q" || byte(char[0]) == CtrlC {
+
+		if char == "Q" || byte(char[0]) == ctrlC {
 			fmt.Printf("Quit\r\n")
 			break
 		}
+
 		if char == "" {
 			continue
 		}
+
+		if char == "h" {
+			showHelp()
+			continue
+		}
+
 		if char == "q" {
 			q = readLine("Enter q value", q)
 		} else if char == "f" {
 			facetField = readLine("Enter facet.field", facetField)
 		} else if char == "l" {
 			fl = readLine("Enter fl value", fl)
+		} else if char == "s" {
+			start = readLine("Enter start value", start)
+		} else if char == "o" {
+			rows = readLine("Enter rows value", rows)
 		} else if char == "x" {
-			s := solr.New(solrCoreUrl, true)
+			s := solr.New(solrCoreURL, true)
 			options := map[string]string{
 				"defType": "edismax",
 			}
@@ -62,17 +75,21 @@ func main() {
 			if fl != "" {
 				params.Fl = strings.Split(fl, ",")
 			}
+			if start != "" {
+				params.Start = toInt(start)
+			}
+			if rows != "" {
+				params.Rows = toInt(rows)
+			}
 			results, err := s.Search(params)
 			if err != nil {
 				fmt.Printf("ERROR: %s", err)
-			}
-			fmt.Printf("Documents found: %d", results.NumFound)
-			for _, doc := range results.Documents {
-				json := toJSON(doc)
-				fmt.Printf("%s\r\n", json)
+			} else {
+				fmt.Printf("%s\r\n", toJSON(results.Raw))
 			}
 		}
-		showHelp()
+
+		showMenu()
 	}
 	return
 }
@@ -82,9 +99,21 @@ func showSyntax() {
 	fmt.Printf("e.g. solrcli http://localhost:8983/solr/your-core\n")
 
 }
-func showHelp() {
+
+func showMenu() {
 	fmt.Printf("===============================================================================\n")
 	fmt.Printf("[h]elp | [q]uery | [f]acet field | f[l] | e[x]ecute | [s]tart | r[o]ws | [Q]uit\n")
+	fmt.Printf("===============================================================================\r\n")
+}
+
+func showHelp() {
+	fmt.Printf("===============================================================================\n")
+	fmt.Printf("[h] show this help screen\n")
+	fmt.Printf("[q] enter the Solr q value\n")
+	fmt.Printf("[#] blah blah blah \n")
+	fmt.Printf("[#] blah blah blah \n")
+	fmt.Printf("[#] blah blah blah \n")
+	fmt.Printf("[#] blah blah blah \n")
 	fmt.Printf("===============================================================================\r\n")
 }
 
@@ -93,6 +122,9 @@ func readLine(prompt string, value string) string {
 		fmt.Printf("%s: ", prompt)
 	} else {
 		fmt.Printf("%s (%s): ", prompt, value)
+		// https://stackoverflow.com/a/33509850/446681
+		// fmt.Printf("\033[0;0H")
+		// fmt.Printf("\033[3D")
 	}
 
 	// writer := bufio.NewWriter(os.Stdin)
@@ -100,6 +132,10 @@ func readLine(prompt string, value string) string {
 	// writer.Flush()
 	reader := bufio.NewReader(os.Stdin)
 	text, _ := reader.ReadString('\n')
+	if text == "\n" {
+		// Use the original value
+		return value
+	}
 	return strings.TrimSpace(text)
 }
 
@@ -122,16 +158,16 @@ func readKey() string {
 	return string(b)
 }
 
-func toJSON(data interface{}) string {
-	raw, err := json.Marshal(data)
-	if err != nil {
-		return ""
-	}
+func toInt(str string) int {
+	num, _ := strconv.ParseInt(str, 10, 64)
+	return int(num)
+}
 
+func toJSON(raw string) string {
 	var pretty bytes.Buffer
-	err = json.Indent(&pretty, raw, "", "\t")
+	err := json.Indent(&pretty, []byte(raw), "", "\t")
 	if err != nil {
-		return ""
+		return err.Error()
 	}
 	return string(pretty.Bytes())
 }
