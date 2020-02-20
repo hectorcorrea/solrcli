@@ -22,6 +22,7 @@ var start string
 var rows string
 var fl string
 var qf string
+var debug string = "false"
 
 func main() {
 	fmt.Printf("solrcli\r\n")
@@ -62,15 +63,25 @@ func main() {
 			start = readLine("Enter start value", start)
 		} else if char == "o" {
 			rows = readLine("Enter rows value", rows)
+		} else if char == "d" {
+			debug = readLine("Enter debug value", debug)
 		} else if char == "x" {
 			s := solr.New(solrCoreURL, true)
+
 			options := map[string]string{
 				"defType": "edismax",
 			}
+			if debug == "true" {
+				options["debug"] = "true"
+			} else {
+				options["debug"] = "false"
+			}
+
 			facets := map[string]string{}
 			if facetField != "" {
-				facets = map[string]string{facetField: facetField}
+				facets[facetField] = facetField
 			}
+
 			params := solr.NewSearchParams(q, options, facets)
 			if fl != "" {
 				params.Fl = strings.Split(fl, ",")
@@ -101,9 +112,9 @@ func showSyntax() {
 }
 
 func showMenu() {
-	fmt.Printf("===============================================================================\n")
-	fmt.Printf("[h]elp | [q]uery | [f]acet field | f[l] | e[x]ecute | [s]tart | r[o]ws | [Q]uit\n")
-	fmt.Printf("===============================================================================\r\n")
+	fmt.Printf("=========================================================================================\n")
+	fmt.Printf("[h]elp | [q]uery | [f]acet field | f[l] | e[x]ecute | [s]tart | r[o]ws | [d]ebug | [Q]uit\n")
+	fmt.Printf("=========================================================================================\n")
 }
 
 func showHelp() {
