@@ -52,5 +52,5 @@ You can customize the query (`q`), facet field (`f`), list of fields to return
 ## Executable
 
 If you don't care about the source code, download the executable for your operating
-system, and follow the instructions on Release tab.
+system, and follow the instructions on [Release tab](https://github.com/hectorcorrea/solrcli/releases).
 
