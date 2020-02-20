@@ -39,6 +39,7 @@ func main() {
 	showMenu()
 
 	for true {
+		fmt.Printf("> ")
 		option := readKey()
 
 		if option == "Q" || byte(option[0]) == ctrlC {
@@ -49,6 +50,8 @@ func main() {
 		if option == "" {
 			continue
 		}
+
+		fmt.Printf("%s\n", option)
 
 		if option == "h" {
 			showHelp()
