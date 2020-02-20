@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -65,6 +67,14 @@ func main() {
 			rows = readLine("Enter rows value", rows)
 		} else if char == "d" {
 			debug = readLine("Enter debug value", debug)
+		} else if char == "c" {
+			lukeURL := fmt.Sprintf("%s/admin/luke", solrCoreURL)
+			x, err := getSchema(lukeURL)
+			if err != nil {
+				fmt.Printf("ERROR: %s", err)
+			} else {
+				fmt.Printf("%s", x)
+			}
 		} else if char == "x" {
 			s := solr.New(solrCoreURL, true)
 
@@ -108,24 +118,35 @@ func main() {
 func showSyntax() {
 	fmt.Printf("solrcli url-to-solr-core\n")
 	fmt.Printf("e.g. solrcli http://localhost:8983/solr/your-core\n")
-
 }
 
 func showMenu() {
-	fmt.Printf("=========================================================================================\n")
-	fmt.Printf("[h]elp | [q]uery | [f]acet field | f[l] | e[x]ecute | [s]tart | r[o]ws | [d]ebug | [Q]uit\n")
-	fmt.Printf("=========================================================================================\n")
+	//                   1         2         3         4         5         6         7         8
+	//          123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-
+	fmt.Printf("==============================================================================\n")
+	fmt.Printf("[h]elp | [q]uery | [f]acet | f[l] | e[x]ecute | [s]tart | r[o]ws | [Q]uit\n")
+	fmt.Printf("==============================================================================\n")
 }
 
 func showHelp() {
-	fmt.Printf("===============================================================================\n")
-	fmt.Printf("[h] show this help screen\n")
-	fmt.Printf("[q] enter the Solr q value\n")
-	fmt.Printf("[#] blah blah blah \n")
-	fmt.Printf("[#] blah blah blah \n")
-	fmt.Printf("[#] blah blah blah \n")
-	fmt.Printf("[#] blah blah blah \n")
-	fmt.Printf("===============================================================================\r\n")
+	//                   1         2         3         4         5         6         7         8
+	//          123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-
+	fmt.Printf("==============================================================================\n")
+	fmt.Printf("Options available\n")
+	fmt.Printf("\n")
+	fmt.Printf("\t[c] Show Solr core's schema\n")
+	fmt.Printf("\t[d] Enter the debug value\n")
+	fmt.Printf("\t[f] Enter the facet.field value\n")
+	fmt.Printf("\t[h] Show this help screen\n")
+	fmt.Printf("\t[l] Enter the Solr fl value\n")
+	fmt.Printf("\t[o] Enter the rows value\n")
+	fmt.Printf("\t[q] Enter the Solr q value\n")
+	fmt.Printf("\t[s] Enter the start value\n")
+	fmt.Printf("\t[x] Execute the query with the current values\n")
+	fmt.Printf("\n")
+	fmt.Printf("\t[Q] Quit (also CTRL+C)\n")
+	fmt.Printf("==============================================================================\n")
+	fmt.Printf("\n")
 }
 
 func readLine(prompt string, value string) string {
@@ -149,12 +170,6 @@ func readLine(prompt string, value string) string {
 	}
 	return strings.TrimSpace(text)
 }
-
-// func readChar() string {
-// 	reader := bufio.NewReader(os.Stdin)
-// 	text, _ := reader.ReadString('\n')
-// 	return strings.TrimSpace(string(text[0]))
-// }
 
 // Source https://stackoverflow.com/a/17278730/446681
 func readKey() string {
@@ -181,4 +196,18 @@ func toJSON(raw string) string {
 		return err.Error()
 	}
 	return string(pretty.Bytes())
+}
+
+func getSchema(lukeURL string) (string, error) {
+	r, err := http.Get(lukeURL)
+	if err != nil {
+		return "", err
+	}
+
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(body), nil
 }
