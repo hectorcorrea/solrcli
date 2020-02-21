@@ -62,6 +62,8 @@ func main() {
 			q = readLine("Enter q value", q)
 		} else if option == "f" {
 			facetField = readLine("Enter facet.field", facetField)
+		} else if option == "F" {
+			qf = readLine("Enter qf", qf)
 		} else if option == "l" {
 			fl = readLine("Enter fl value", fl)
 		} else if option == "s" {
@@ -88,6 +90,9 @@ func main() {
 				options["debug"] = "true"
 			} else {
 				options["debug"] = "false"
+			}
+			if qf != "" {
+				options["qf"] = qf
 			}
 
 			facets := map[string]string{}
@@ -138,13 +143,14 @@ func showHelp() {
 	fmt.Printf("Options available\n")
 	fmt.Printf("\n")
 	fmt.Printf("\t[c] Show Solr core's schema\n")
-	fmt.Printf("\t[d] Enter the debug value\n")
-	fmt.Printf("\t[f] Enter the facet.field value\n")
+	fmt.Printf("\t[d] Enter debug value\n")
+	fmt.Printf("\t[f] Enter facet.field value\n")
+	fmt.Printf("\t[F] Enter qf value\n")
 	fmt.Printf("\t[h] Show this help screen\n")
-	fmt.Printf("\t[l] Enter the Solr fl value\n")
-	fmt.Printf("\t[o] Enter the rows value\n")
-	fmt.Printf("\t[q] Enter the Solr q value\n")
-	fmt.Printf("\t[s] Enter the start value\n")
+	fmt.Printf("\t[l] Enter fl value\n")
+	fmt.Printf("\t[o] Enter rows value\n")
+	fmt.Printf("\t[q] Enter q value\n")
+	fmt.Printf("\t[s] Enter start value\n")
 	fmt.Printf("\t[x] Execute the query with the current values\n")
 	fmt.Printf("\n")
 	fmt.Printf("\t[Q] Quit (also CTRL+C)\n")
