@@ -49,8 +49,17 @@ You can customize the query (`q`), facet field (`f`), list of fields to return
 (`l`), and so on via the options in the menu bar.
 
 
-## Executable
+## Menu vs REPL mode
+When running the executable you can select `menu` or `repl` mode. 
 
+* `menu` is the default and in this more commands and assignments are set via a single keystroke, 
+for example `q` allows you to set the `q` value, and `x` allows you to execute the Solr query.
+
+* `repl` works as typical Read-eval-print-loop in which you can issue assignments (e.g. `q=value`) 
+or execute commands (e.g. `run` or `help`)
+
+
+## Executable
 If you don't care about the source code, download the executable for your operating
 system, and follow the instructions on [Release tab](https://github.com/hectorcorrea/solrcli/releases).
 
