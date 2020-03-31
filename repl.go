@@ -11,7 +11,7 @@ import (
 func repl(solrCoreURL string) {
 	l, err := readline.NewEx(&readline.Config{
 		Prompt:          "\033[31m>\033[0m ",
-		HistoryFile:     "/tmp/readline.tmp",
+		HistoryFile:     "/tmp/solrcli.tmp",
 		InterruptPrompt: "^C",
 		EOFPrompt:       "exit",
 
@@ -66,12 +66,16 @@ func repl(solrCoreURL string) {
 			q = value
 		case key == "qf":
 			qf = value
+		case key == "facet":
+			facet = value
 		case key == "fl":
 			fl = value
 		case key == "rows":
 			rows = value
 		case key == "start":
 			start = value
+		case key == "sort":
+			sort = value
 		default:
 			fmt.Printf("Unknown command: %s\n", key)
 		}
@@ -106,8 +110,9 @@ func showBarRepl() {
 	//                   1         2         3         4         5         6         7         8
 	//          123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-
 	fmt.Printf("run  - execute query\n")
+	fmt.Printf("show - show current values for query\n")
 	fmt.Printf("help - view available options\n")
-	fmt.Printf("quit - to quite (also CTRL+C\n")
+	fmt.Printf("quit - to quit (also CTRL+C)\n")
 	fmt.Printf("==============================================================================\n")
 }
 
@@ -124,9 +129,11 @@ func showHelpRepl() {
 	fmt.Printf("\n")
 	fmt.Printf("Options available\n")
 	fmt.Printf("\tdebug = true|false   - Sets debug value\n")
+	fmt.Printf("\tfacet = true|false   - Sets the facet value\n")
 	fmt.Printf("\tfacet.field = value  - Sets the facet.field value\n")
 	fmt.Printf("\tfl = value           - Sets the fl value\n")
 	fmt.Printf("\trows = value         - Sets the rows value\n")
+	fmt.Printf("\tsort = value         - Sets the sorder order value\n")
 	fmt.Printf("\tstart = value        - Sets the start value\n")
 	fmt.Printf("\tq = value            - Sets the q value\n")
 	fmt.Printf("\tqf = value           - Sets the qf value\n")

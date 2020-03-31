@@ -20,6 +20,9 @@ var rows string
 var fl string
 var qf string
 var debug string = "false"
+var sort string
+var solrCoreURL string
+var facet string = "false"
 
 func main() {
 	if len(os.Args) < 2 {
@@ -27,33 +30,22 @@ func main() {
 		return
 	}
 
-	solrCoreURL := os.Args[1]
+	solrCoreURL = os.Args[1]
 	fmt.Printf("solrcli\r\n")
 	fmt.Printf("%s\r\n", solrCoreURL)
 
-	if len(os.Args) == 3 && os.Args[2] == "repl" {
-		repl(solrCoreURL)
-		return
-	}
-
-	menu(solrCoreURL)
+	repl(solrCoreURL)
 	return
 }
 
 func showSyntax() {
 	syntax := `
-solrcli url-to-solr-core [menu|repl]
-e.g. solrcli http://localhost:8983/solr/your-core repl
-	
+solrcli url-to-solr-core
+e.g. solrcli http://localhost:8983/solr/your-core
+
 PARAMETERS
 	url-to-solr-core  	Full http URL to the Solr core to use
-
-	menu 			to use Menu mode in which parameters are set via single keystroke
-				options (e.g. q for q) and so are commands (e.g. r for run). 
-				This is the default mode.
-
-	repl			to use REPL mode in which parameters are set via assignments
-				(e.g. q=hello) and commands are typed directly (e.g. run)`
+`
 
 	fmt.Printf("%s\n\n", syntax)
 }
@@ -94,13 +86,23 @@ func executeQuery(solrCoreURL string) {
 	options := map[string]string{
 		"defType": "edismax",
 	}
+
 	if debug == "true" {
 		options["debug"] = "true"
 	} else {
 		options["debug"] = "false"
 	}
+
 	if qf != "" {
 		options["qf"] = qf
+	}
+
+	if facet != "" {
+		options["facet"] = facet
+	}
+
+	if sort != "" {
+		options["sort"] = sort
 	}
 
 	facets := map[string]string{}
@@ -128,14 +130,18 @@ func executeQuery(solrCoreURL string) {
 
 // Shows the current values to send to Solr
 func showValues() {
+	fmt.Printf("Solr URL\n")
+	fmt.Printf("  %s\n", solrCoreURL)
+	fmt.Printf("\n")
 	fmt.Printf("Solr values\n")
 	fmt.Printf("  q           = %s\n", q)
 	fmt.Printf("  fl          = %s\n", fl)
-	fmt.Printf("\n")
+	fmt.Printf("  facet       = %s\n", facet)
 	fmt.Printf("  facet.field = %s\n", facetField)
 	fmt.Printf("  debug       = %s\n", debug)
 	fmt.Printf("  defType     = %s\n", "edismax")
 	fmt.Printf("  qf          = %s\n", qf)
 	fmt.Printf("  rows        = %s\n", rows)
+	fmt.Printf("  sort        = %s\n", sort)
 	fmt.Printf("  start       = %s\n", start)
 }

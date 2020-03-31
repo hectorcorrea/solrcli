@@ -8,7 +8,7 @@ parameters as you would in the native "Solr Admin" web page and execute them.
 
 This is a work in progress in *very* early stages.
 
-## Compiling and running
+## Compiling
 ```
 git clone https://github.com/hectorcorrea/solrcli.git
 go get
@@ -16,14 +16,21 @@ go build
 ./solrcli http://localhost:8983/solr/your-core
 ```
 
+## Running
 When running it more or less looks like this:
+
 ```
 ./solrcli http://localhost:8983/solr/your-core
 
+solrcli
+http://localhost:8983/solr/your-core
+run  - execute query
+show - show current values for query
+help - view available options
+quit - to quit (also CTRL+C)
 ==============================================================================
-[h]elp | [q]uery | [f]acet | f[l] | e[x]ecute | [s]tart | r[o]ws | [Q]uit
-==============================================================================
-> x
+>  run
+
 2020/02/20 16:24:30 Solr HTTP GET: http://localhost:8983/solr/your-core/select?q=%2A&defType=edismax&debug=false&
 {
 	"responseHeader": {
@@ -45,19 +52,13 @@ When running it more or less looks like this:
 }
 ```
 
-You can customize the query (`q`), facet field (`f`), list of fields to return
-(`l`), and so on via the options in the menu bar.
+Setting the Solr values to use (e.g. `q`, `fl`, `defType`) is done via assignments (`x=y`) and you can execute the Solr query via the `run` command. For example
 
-
-## Menu vs REPL mode
-When running the executable you can select `menu` or `repl` mode. 
-
-* `menu` is the default and in this more commands and assignments are set via a single keystroke, 
-for example `q` allows you to set the `q` value, and `x` allows you to execute the Solr query.
-
-* `repl` works as typical Read-eval-print-loop in which you can issue assignments (e.g. `q=value`) 
-or execute commands (e.g. `run` or `help`)
-
+```
+> q=id:123
+> fl=id, title_display
+> run
+```
 
 ## Executable
 If you don't care about the source code, download the executable for your operating
