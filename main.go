@@ -13,24 +13,13 @@ import (
 	"github.com/hectorcorrea/solr"
 )
 
-var q string
-var facetField string
-var start string
-var rows string
-var fl string
-var qf string
-var debug string = "false"
-var sort string
-var solrCoreURL string
-var facet string = "false"
-
 func main() {
 	if len(os.Args) < 2 {
 		showSyntax()
 		return
 	}
 
-	solrCoreURL = os.Args[1]
+	solrCoreURL := os.Args[1]
 	fmt.Printf("solrcli\r\n")
 	fmt.Printf("%s\r\n", solrCoreURL)
 
@@ -80,46 +69,37 @@ func getSchema(lukeURL string) (string, error) {
 }
 
 // Executes the Solr query with the current values
-func executeQuery(solrCoreURL string) {
-	s := solr.New(solrCoreURL, true)
-
+func executeQuery(solrCoreURL string, userParams map[string]string) {
+	q := "*:*"
+	facets := map[string]string{}
 	options := map[string]string{
 		"defType": "edismax",
 	}
 
-	if debug == "true" {
-		options["debug"] = "true"
-	} else {
-		options["debug"] = "false"
+	for key, value := range userParams {
+		if key == "facet.field" {
+			facets[value] = value
+		} else if key == "start" || key == "rows" || key == "fl" {
+			// these are process individually (see below)
+		} else if key == "q" {
+			q = value
+		} else {
+			options[key] = value
+		}
 	}
 
-	if qf != "" {
-		options["qf"] = qf
-	}
-
-	if facet != "" {
-		options["facet"] = facet
-	}
-
-	if sort != "" {
-		options["sort"] = sort
-	}
-
-	facets := map[string]string{}
-	if facetField != "" {
-		facets[facetField] = facetField
-	}
-
+	s := solr.New(solrCoreURL, true)
 	params := solr.NewSearchParams(q, options, facets)
-	if fl != "" {
-		params.Fl = strings.Split(fl, ",")
+	if userParams["fl"] != "" {
+		params.Fl = strings.Split(userParams["fl"], ",")
 	}
-	if start != "" {
-		params.Start = toInt(start)
+	if userParams["start"] != "" {
+		params.Start = toInt(userParams["start"])
 	}
-	if rows != "" {
-		params.Rows = toInt(rows)
+	if userParams["rows"] != "" {
+		params.Rows = toInt(userParams["rows"])
 	}
+
 	results, err := s.Search(params)
 	if err != nil {
 		fmt.Printf("ERROR: %s", err)
@@ -129,19 +109,12 @@ func executeQuery(solrCoreURL string) {
 }
 
 // Shows the current values to send to Solr
-func showValues() {
+func showValues(solrCoreURL string, userParams map[string]string) {
 	fmt.Printf("Solr URL\n")
 	fmt.Printf("  %s\n", solrCoreURL)
 	fmt.Printf("\n")
 	fmt.Printf("Solr values\n")
-	fmt.Printf("  q           = %s\n", q)
-	fmt.Printf("  fl          = %s\n", fl)
-	fmt.Printf("  facet       = %s\n", facet)
-	fmt.Printf("  facet.field = %s\n", facetField)
-	fmt.Printf("  debug       = %s\n", debug)
-	fmt.Printf("  defType     = %s\n", "edismax")
-	fmt.Printf("  qf          = %s\n", qf)
-	fmt.Printf("  rows        = %s\n", rows)
-	fmt.Printf("  sort        = %s\n", sort)
-	fmt.Printf("  start       = %s\n", start)
+	for key, value := range userParams {
+		fmt.Printf("\t%s\t\t= %s\n", key, value)
+	}
 }

@@ -9,6 +9,8 @@ import (
 )
 
 func repl(solrCoreURL string) {
+	userParams := map[string]string{}
+
 	l, err := readline.NewEx(&readline.Config{
 		Prompt:          "\033[31m>\033[0m ",
 		HistoryFile:     "/tmp/solrcli.tmp",
@@ -47,9 +49,9 @@ func repl(solrCoreURL string) {
 		case key == "help":
 			showHelpRepl()
 		case key == "show":
-			showValues()
+			showValues(solrCoreURL, userParams)
 		case key == "run":
-			executeQuery(solrCoreURL)
+			executeQuery(solrCoreURL, userParams)
 		case key == "schema":
 			lukeURL := fmt.Sprintf("%s/admin/luke", solrCoreURL)
 			schema, err := getSchema(lukeURL)
@@ -58,26 +60,8 @@ func repl(solrCoreURL string) {
 			} else {
 				fmt.Printf("%s", schema)
 			}
-		case key == "debug":
-			debug = value
-		case key == "facet.field":
-			facetField = value
-		case key == "q":
-			q = value
-		case key == "qf":
-			qf = value
-		case key == "facet":
-			facet = value
-		case key == "fl":
-			fl = value
-		case key == "rows":
-			rows = value
-		case key == "start":
-			start = value
-		case key == "sort":
-			sort = value
 		default:
-			fmt.Printf("Unknown command: %s\n", key)
+			userParams[key] = value
 		}
 	}
 }
